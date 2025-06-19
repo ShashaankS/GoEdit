@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import API from "@/lib/api"
 
 interface RegisterFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -19,25 +20,35 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
   const [password, setPassword] = React.useState("")
   const router = useRouter()
   const { toast } = useToast()
-
+  
+  console.log(API)
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault()
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const formData = {
+        Email: email,
+        Password: password,
+      };
+      const res = await API.post('/signup', JSON.stringify(formData));
 
       toast({
         title: "Account created",
         description: "Your account has been created successfully.",
-      })
+      });
 
-      router.push("/login")
-    } catch (error) {
+      router.push("/login");
+    } 
+    catch (error: any) {
+      const errMsg =
+        error.response?.data?.error || // backend-provided error
+        error.message ||               // generic axios/network error
+        "There was a problem creating your account."
+
       toast({
         title: "Registration failed",
-        description: "There was a problem creating your account.",
+        description: errMsg,
         variant: "destructive",
       })
     } finally {
